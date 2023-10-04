@@ -6,15 +6,16 @@
 #include <DHT_U.h>
 #include <ESP8266HTTPClient.h>
 
-const char* ssid = "5G8664";
-const char* password = "88888888";
+const char* ssid = "DLive_04C1";
+const char* password = "62CEED04C0";
 
 #define DHTPIN D6
 #define DHTTYPE DHT11
 
 DHT_Unified dht(DHTPIN, DHTTYPE);
-float temperature;
-float humidity;
+float temperature = 0.0;
+float humidity = 0.0;
+int waterLevel = 0;
 
 const int waterLevelPin = A0;
 
@@ -42,7 +43,7 @@ void setup() {
   Serial.println(WiFi.localIP());
 
   server.on("/", HTTP_GET, handleRoot);
-
+  server.on("/", HTTP_POST, handleRoot);
   server.begin();
 }
 
@@ -60,30 +61,9 @@ void loop() {
 }
 
 void handleRoot() {
-  String html = "<html><head>";
-  html += "<style>";
-  html += "body { font-family: Arial, sans-serif; text-align: center; background-color: #f2f2f2; margin: 0; padding: 0; }";
-  html += ".container { background-color: white; box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2); padding: 20px; }";
-  html += "h1 { color: #333; }";
-  html += ".sensor-data { font-size: 24px; text-align: left; margin-bottom: 20px; padding: 10px; }";
-  html += "</style>";
-  html += "</head><body>";
-  html += "<div class='container'>";
-  html += "<h1>ESP8266 Weather Station</h1>";
-  html += "<div class='sensor-data'>";
-  html += "Temperature: " + String(temperature) + "°C<br>";
-  html += "Humidity: " + String(humidity) + "%<br>";
-  int waterLevel = analogRead(waterLevelPin);
-  html += "Water Level: " + String(waterLevel) + "<br>";
-  html += "</div>";
-  html += "</div>";
-  html += "</body></html>";
-  server.send(200, "text/html", html);
-
-  // Отправляем данные на сервер с использованием HTTP POST запроса
   HTTPClient http;
   WiFiClient client;
-  String url = "http://innoreef.pe.kr/html/index.php";
+  String url = "http://innoreef.pe.kr/index.php";
   http.begin(client, url);
   http.addHeader("Content-Type", "application/x-www-form-urlencoded");
 
