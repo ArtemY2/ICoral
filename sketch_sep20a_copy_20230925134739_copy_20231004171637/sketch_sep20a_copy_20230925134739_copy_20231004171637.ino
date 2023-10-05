@@ -6,8 +6,8 @@
 #include <DHT_U.h>
 #include <ESP8266HTTPClient.h>
 
-const char* ssid = "DLive_04C1";
-const char* password = "62CEED04C0";
+const char* ssid = "DLive_3852";
+const char* password = "E0012D3851";
 
 #define DHTPIN D6
 #define DHTTYPE DHT11
@@ -15,9 +15,6 @@ const char* password = "62CEED04C0";
 DHT_Unified dht(DHTPIN, DHTTYPE);
 float temperature = 0.0;
 float humidity = 0.0;
-int waterLevel = 0;
-
-const int waterLevelPin = A0;
 
 ESP8266WebServer server(80);
 
@@ -61,13 +58,27 @@ void loop() {
 }
 
 void handleRoot() {
+  sensors_event_t event;
+  dht.temperature().getEvent(&event);
+  if (!isnan(event.temperature)) {
+    temperature = event.temperature;
+  }
+  dht.humidity().getEvent(&event);
+  if (!isnan(event.relative_humidity)) {
+    humidity = event.relative_humidity;
+  }
+  Serial.print("Temperature: ");
+  Serial.println(temperature);
+  Serial.print("Humidity: ");
+  Serial.println(humidity);
+
   HTTPClient http;
   WiFiClient client;
-  String url = "http://innoreef.pe.kr/index.php";
+  String url = "http://icoral.dothome.co.kr/index.php";
   http.begin(client, url);
   http.addHeader("Content-Type", "application/x-www-form-urlencoded");
 
-  String postData = "temperature=" + String(temperature) + "&humidity=" + String(humidity) + "&waterLevel=" + String(waterLevel);
+  String postData = "temperature=" + String(temperature) + "&humidity=" + String(humidity);
 
   int httpResponseCode = http.POST(postData);
 
