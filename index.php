@@ -1,92 +1,87 @@
-<!DOCTYPE html>
-<html>
-<head>
-<link rel="stylesheet" type="text/css" href="styles.css">
-    <style>
+<?php
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $temperature = isset($_POST['temperature']) ? $_POST['temperature'] : null;
+    $humidity = isset($_POST['humidity']) ? $_POST['humidity'] : null;
+
     
-body {
-    font-family: Arial, sans-serif;
-    margin: 20px;
+    $servername = "localhost";
+    $username = "icoral";
+    $password = "wjqthr12!";
+    $dbname = "icoral";
+
+    $conn = new mysqli($servername, $username, $password, $dbname);
+
+    if ($conn->connect_error) {
+        die("Connection failed: " . $conn->connect_error);
+    }
+
+    $sql = "INSERT INTO sensor_data (temperature, humidity) VALUES (?, ?)";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("dd", $temperature, $humidity);
+
+    if ($stmt->execute() === TRUE) {
+        echo "Data inserted successfully.";
+    } else {
+        echo "Error inserting data: " . $conn->error;
+    }
+
+    $stmt->close();
+    $conn->close();
+} else {
+    echo "Invalid request method.";
+}
+?>
+
+
+
+<style>
+    table {
+        border-collapse: collapse;
+        width: 100%;
+    }
+
+    th, td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: left;
+    }
+
+    th {
+        background-color: #f2f2f2;
+    }
+
+    tr:nth-child(even) {
+        background-color: #f2f2f2;
+    }
+
+    tr:hover {
+        background-color: #ddd;
+    }
+</style>
+
+<?php
+$servername = "localhost";
+$username = "icoral";
+$password = "wjqthr12!";
+$dbname = "icoral";
+
+$conn = new mysqli($servername, $username, $password, $dbname);
+
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
 }
 
-.container {
-    max-width: 800px;
-    margin: 0 auto;
+$sql = "SELECT * FROM sensor_data";
+$result = $conn->query($sql);
+
+if ($result->num_rows > 0) {
+    echo "<table><tr><th>ID</th><th>Temperature</th><th>Humidity</th><th>Timestamp</th></tr>";
+    while ($row = $result->fetch_assoc()) {
+        echo "<tr><td>" . $row["id"] . "</td><td>" . $row["temperature"] . "</td><td>" . $row["humidity"] . "</td><td>" . $row["timestamp"] . "</td></tr>";
+    }
+    echo "</table>";
+} else {
+    echo "No data available";
 }
-
-.header {
-    background-color: #333;
-    color: white;
-    padding: 10px;
-    text-align: center;
-}
-
-.content {
-    padding: 20px;
-}
-
-.success {
-    color: green;
-}
-
-.error {
-    color: red;
-}
-
-    </style>
-</head>
-<body>
-    <div class="container">
-        <div class="header">
-            <h1>Data Insertion</h1>
-        </div>
-        <div class="content">
-            <?php
-            if (!function_exists('mysqli_init') && !extension_loaded('mysqli')) {
-                echo 'We don\'t have mysqli!!!';
-            } else {
-                echo 'Phew we have it!';
-            }
-
-            $servername = "localhost";
-            $username = "icoral";
-            $password = "wjqthr12!";
-            $dbname = "icoral";
-
-            $conn = new mysqli($servername, $username, $password, $dbname);
-
-            if ($conn->connect_error) {
-                die("Connection failed: " . $conn->connect_error);
-            }
-
-            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-                $post_data = file_get_contents('php://input');
-                if ($post_data !== false && !empty($post_data)) {
-                    $data = json_decode($post_data, true);
-
-                    $temperature = isset($data['temperature']) ? $data['temperature'] : null;
-                    $humidity = isset($data['humidity']) ? $data['humidity'] : null;
-                    $waterLevel = isset($data['waterLevel']) ? $data['waterLevel'] : null;
-
-                    $sql = "INSERT INTO sensor_data (temperature, humidity, waterLevel) VALUES (?, ?, ?)";
-                    $stmt = $conn->prepare($sql);
-                    $stmt->bind_param("ddd", $temperature, $humidity, $waterLevel);
-                    if ($stmt->execute() === TRUE) {
-                        echo "<p class='success'>Данные успешно вставлены в базу данных.</p>";
-                    } else {
-                        echo "<p class='error'>Ошибка вставки данных: " . $conn->error . "</p>";
-                    }
-                    $stmt->close();
-                } else {
-                    echo '<p class="error">Пустое тело POST-запроса.</p>';
-                }
-            } else {
-                echo '<p class="error">Неверный метод запроса.</p>';
-            }
-
-            $conn->close();
-            ?>
-        </div>
-    </div>
-</body>
-</html>
+$conn->close();
+?>
