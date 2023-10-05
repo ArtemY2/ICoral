@@ -2,7 +2,7 @@
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $temperature = isset($_POST['temperature']) ? $_POST['temperature'] : null;
     $humidity = isset($_POST['humidity']) ? $_POST['humidity'] : null;
-    $waterLevel = isset($_POST['waterLevel']) ? $_POST['waterLevel'] : null; // Добавляем уровень воды
+    $waterLevel = isset($_POST['waterLevel']) ? $_POST['waterLevel'] : null;
 
     $servername = "localhost";
     $username = "icoral";
@@ -15,9 +15,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         die("Connection failed: " . $conn->connect_error);
     }
 
-    $sql = "INSERT INTO sensor_data (temperature, humidity, waterLevel) VALUES (?, ?, ?)"; // Обновляем запрос SQL
+    $sql = "INSERT INTO sensor_data (temperature, humidity, waterLevel) VALUES (?, ?, ?)";
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param("ddd", $temperature, $humidity, $waterLevel); // Обновляем параметры
+    $stmt->bind_param("ddd", $temperature, $humidity, $waterLevel); 
 
     if ($stmt->execute() === TRUE) {
         echo "Data inserted successfully.";
